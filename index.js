@@ -13,7 +13,6 @@ const client = new Client({
         IntentsBitField.Flags.GuildMessages, // Para receber eventos relacionados a mensagens
         IntentsBitField.Flags.MessageContent, // Para receber conteúdo de mensagens
         IntentsBitField.Flags.AutoModerationExecution, // Para receber eventos de moderação automática
-        s
     ]
 });
 
@@ -41,6 +40,10 @@ client.on("messageCreate", (message) => {
                 // Chamando a função para silenciar um membro
                 silenceMember(message, args);
                 break;
+            case 'kick':
+                kickMember(message, args)
+                break;
+                
             default:
                 // Resposta padrão para comandos não encontrados
                 message.reply("Comando não encontrado!");
@@ -105,10 +108,23 @@ function silenceMember(message, args) {
         .catch(console.error);
 }
 
+function kickMember(message, args){
+    const member = message.mentions.members.fist();
+    const reason = args.slice(1).join('');
+
+    if (!member) return message.reply("Membro não encontrado.");
+    if (!reason) return message.reply("Motivo não especificado.");
+    
+    message.guild.members.kick(member, {reason})
+        .then(() => {
+            // Resposta após o banimento
+            message.channel.send(`@${message.author.tag} expulsou @${member.user.tag} por ${reason}`);
+        })
+        .catch(console.error);
+}
+
 // Evento que é disparado quando o cliente está pronto
 client.on('ready', (e) => {
     // Resposta quando o cliente está online
     console.log(`${client.user.tag} está online!`);
 });
-
-// F
